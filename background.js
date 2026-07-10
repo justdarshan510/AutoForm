@@ -384,33 +384,10 @@ function handleFillComplete(tabId, results) {
     return;
   }
 
-  // Always pause at review pages or when custom AI answers were generated
-  // Also stop automation for user review if we are at a "Submit" page
-  const isSubmitStep = state.nextButtonSelector && /submit|apply|complete/i.test(state.nextButtonSelector);
-
-  if (state.customQaFieldsFound || isSubmitStep || state.confidence < 80) {
-    state.status = 'awaiting_confirm';
-    state.message = isSubmitStep 
-      ? 'Final submission page reached. Please review all fields, then click "Verify & Continue" to submit.'
-      : 'AI answered custom questions or confidence is low. Review entries, then click "Verify & Continue" to navigate.';
-    broadcastState(tabId);
-  } else {
-    // High-confidence intermediate step, click next automatically
-    state.status = 'filling';
-    state.message = 'Fills completed. Navigating automatically...';
-    broadcastState(tabId);
-
-    // Let the user see the prefill for 1.2 seconds before navigating
-    setTimeout(() => {
-      // Check if status is still filling (user didn't click Pause during timeout)
-      if (tabStates[tabId]?.status === 'filling') {
-        chrome.tabs.sendMessage(tabId, {
-          action: 'CLICK_NEXT',
-          selector: state.nextButtonSelector
-        });
-      }
-    }, 1200);
-  }
+  // Autofill only: fill fields and pause for manual review and navigation
+  state.status = 'awaiting_confirm';
+  state.message = 'Fills completed. Please review all fields, then click next/submit manually when ready.';
+  broadcastState(tabId);
 }
 
 function handleError(tabId, errorMsg) {

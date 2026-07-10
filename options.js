@@ -681,6 +681,12 @@ function saveAllProfilesToStorage() {
 
 // Settings tab actions
 function setupSettingsHandlers() {
+  // Save API key automatically as the user types/pastes it
+  apiKeyInput.addEventListener('input', () => {
+    apiSettings.key = apiKeyInput.value.trim();
+    chrome.storage.local.set({ apiSettings });
+  });
+
   // Toggle key visibility
   btnToggleKeyVisibility.addEventListener('click', () => {
     if (apiKeyInput.type === 'password') {

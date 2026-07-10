@@ -1,6 +1,8 @@
 // Gemini API integration helper
 // Communicates with https://generativelanguage.googleapis.com
 
+const MAX_RETRIES = 2;
+
 async function callGemini(apiKey, prompt, systemInstruction = '', jsonMode = false, model = 'gemini-3.5-flash') {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   
@@ -21,32 +23,61 @@ async function callGemini(apiKey, prompt, systemInstruction = '', jsonMode = fal
       responseMimeType: "application/json"
     };
   }
-  
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Gemini API Error (${response.status}): ${errorText}`);
+
+  let lastError = null;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      if (attempt > 0) {
+        // Exponential backoff: 3s, 6s
+        const waitMs = 3000 * attempt;
+        console.log(`-> Gemini retry ${attempt}/${MAX_RETRIES} after ${waitMs}ms...`);
+        await new Promise(r => setTimeout(r, waitMs));
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+      
+      if (response.status === 429) {
+        const errorText = await response.text();
+        lastError = new Error(`Gemini API Rate Limit (429): ${errorText}`);
+        console.warn(`-> Gemini 429 rate limited on attempt ${attempt + 1}`);
+        continue; // retry
+      }
+
+      if (response.status === 503) {
+        const errorText = await response.text();
+        lastError = new Error(`Gemini API Unavailable (503): ${errorText}`);
+        console.warn(`-> Gemini 503 unavailable on attempt ${attempt + 1}`);
+        continue; // retry
+      }
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gemini API Error (${response.status}): ${errorText}`);
+      }
+      
+      const data = await response.json();
+      const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!resultText) {
+        throw new Error("Empty response from Gemini API");
+      }
+      
+      return jsonMode ? JSON.parse(resultText) : resultText;
+    } catch (error) {
+      lastError = error;
+      // Only retry on rate limit / unavailable (already handled via continue above)
+      // For other errors, break immediately
+      if (!error.message?.includes('429') && !error.message?.includes('503')) {
+        break;
+      }
     }
-    
-    const data = await response.json();
-    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!resultText) {
-      throw new Error("Empty response from Gemini API");
-    }
-    
-    return jsonMode ? JSON.parse(resultText) : resultText;
-  } catch (error) {
-    console.error("callGemini error:", error);
-    throw error;
   }
+
+  console.error("callGemini failed after all retries:", lastError);
+  throw lastError;
 }
 
 /**
@@ -180,12 +211,8 @@ async function fillRemainingFields(apiKey, profile, fields, modelName = 'gemini-
   Return a JSON object where the keys are the field "id"s and the values are the filled text/select values. If a field cannot be answered from the profile, map it to an empty string.
   `;
 
-  try {
-    return await callGemini(apiKey, prompt, systemInstruction, true, modelName);
-  } catch (err) {
-    console.error("fillRemainingFields error:", err);
-    return {};
-  }
+  // Let errors propagate so background.js can run fallback logic
+  return await callGemini(apiKey, prompt, systemInstruction, true, modelName);
 }
 
 // Expose to globalThis

@@ -317,67 +317,39 @@ async function handlePageScan(tabId, scanData) {
   if (unmappedFields.length > 0 && state.apiKey && state.apiKey !== 'PASTE_YOUR_API_KEY_HERE') {
     state.message = 'Using Gemini AI to fill remaining fields...';
     broadcastState(tabId);
+    let aiResults = null;
     try {
       console.log(`-> Querying Gemini bulk fill for ${unmappedFields.length} unmapped fields using model ${state.apiModel || 'gemini-3.5-flash'}...`);
-      const aiResults = await AiHelper.fillRemainingFields(state.apiKey, profile || {}, unmappedFields, state.apiModel);
-      console.log("-> Gemini bulk fill results:", aiResults);
-      
-      for (const field of unmappedFields) {
-        const aiValue = aiResults[field.id];
-        if (aiValue && aiValue.trim()) {
-          console.log(`-> Mapped field "${field.label}" using Gemini AI: "${aiValue}"`);
-          fills.push({
-            id: field.id,
-            name: field.name,
-            xpath: field.xpath,
-            tagName: field.tagName,
-            type: field.type || 'text',
-            value: aiValue.trim(),
-            fileData: null
-          });
-          matchedFields++;
-          
-          // Check if it's a custom question
-          const isCustom = detectCustomQuestion(field.label, field.placeholder, field.name);
-          if (isCustom) {
-            state.customQaFieldsFound = true;
-            hasAIFills = true;
-          }
-        } else {
-          // If Gemini couldn't map it, check if it's a custom essay question and use fallback
-          const isCustom = detectCustomQuestion(field.label, field.placeholder, field.name);
-          if (isCustom) {
-            console.log(`-> Gemini skipped custom question "${field.label}", using local fallback...`);
-            const fallbackValue = generateSimulatedAnswer(field.label || field.placeholder || field.name, profile);
-            fills.push({
-              id: field.id,
-              name: field.name,
-              xpath: field.xpath,
-              tagName: field.tagName,
-              type: field.type || 'text',
-              value: fallbackValue,
-              fileData: null
-            });
-            matchedFields++;
-            state.customQaFieldsFound = true;
-          }
-        }
-      }
+      aiResults = await AiHelper.fillRemainingFields(state.apiKey, profile || {}, unmappedFields, state.apiModel || 'gemini-3.5-flash');
+      console.log("-> Gemini bulk fill results:", JSON.stringify(aiResults));
     } catch (bulkErr) {
-      console.error("Gemini bulk fill failed, falling back to local simulator for custom questions:", bulkErr);
-      // Run local simulated fallback for custom questions if AI fails
-      for (const field of unmappedFields) {
-        const isCustom = detectCustomQuestion(field.label, field.placeholder, field.name);
-        if (isCustom) {
+      console.error("-> Gemini bulk fill failed:", bulkErr.message);
+      aiResults = null;
+    }
+    
+    // Process each unmapped field — use AI result if available, otherwise fallback
+    for (const field of unmappedFields) {
+      const aiValue = aiResults ? aiResults[field.id] : null;
+      if (aiValue && typeof aiValue === 'string' && aiValue.trim()) {
+        console.log(`-> AI filled "${field.label}": "${aiValue.trim().substring(0, 60)}..."`);
+        fills.push({
+          id: field.id, name: field.name, xpath: field.xpath,
+          tagName: field.tagName, type: field.type || 'text',
+          value: aiValue.trim(), fileData: null
+        });
+        matchedFields++;
+        hasAIFills = true;
+        state.customQaFieldsFound = true;
+      } else {
+        // Fallback: generate a local answer for any textarea/text field
+        const isTextInput = field.tagName === 'TEXTAREA' || field.type === 'text' || field.type === 'textarea';
+        if (isTextInput) {
+          console.log(`-> AI missed "${field.label}", using local fallback...`);
           const fallbackValue = generateSimulatedAnswer(field.label || field.placeholder || field.name, profile);
           fills.push({
-            id: field.id,
-            name: field.name,
-            xpath: field.xpath,
-            tagName: field.tagName,
-            type: field.type || 'text',
-            value: fallbackValue,
-            fileData: null
+            id: field.id, name: field.name, xpath: field.xpath,
+            tagName: field.tagName, type: field.type || 'text',
+            value: fallbackValue, fileData: null
           });
           matchedFields++;
           state.customQaFieldsFound = true;
@@ -385,20 +357,16 @@ async function handlePageScan(tabId, scanData) {
       }
     }
   } else if (unmappedFields.length > 0) {
-    // If Gemini is not configured, run local simulated fallback for custom essay questions
+    // No API key configured — use local fallback for all text fields
     for (const field of unmappedFields) {
-      const isCustom = detectCustomQuestion(field.label, field.placeholder, field.name);
-      if (isCustom) {
-        console.log(`-> No API Key, using local fallback for custom question "${field.label}"...`);
+      const isTextInput = field.tagName === 'TEXTAREA' || field.type === 'text' || field.type === 'textarea';
+      if (isTextInput) {
+        console.log(`-> No API Key, using local fallback for "${field.label}"...`);
         const fallbackValue = generateSimulatedAnswer(field.label || field.placeholder || field.name, profile);
         fills.push({
-          id: field.id,
-          name: field.name,
-          xpath: field.xpath,
-          tagName: field.tagName,
-          type: field.type || 'text',
-          value: fallbackValue,
-          fileData: null
+          id: field.id, name: field.name, xpath: field.xpath,
+          tagName: field.tagName, type: field.type || 'text',
+          value: fallbackValue, fileData: null
         });
         matchedFields++;
         state.customQaFieldsFound = true;

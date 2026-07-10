@@ -63,6 +63,16 @@ automatic-form-fill/
 
 ---
 
+## 📸 Demonstration
+
+### Step 1: Personal Details auto-filled (automatically transitions after filling)
+![Step 1](real_step1.png)
+
+### Step 2: Files & Custom AI essay answers auto-filled dynamically
+![Step 2](real_step2.png)
+
+---
+
 ## 🧪 Running Automated Integration Tests
 
 To run the Playwright integration test suite:

@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "ApplyPilot",
+  "version": "1.0.0",
+  "description": "An intelligent form filler and application assistant powered by AI.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ApplyPilot"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file://*/*"],
+      "css": ["content.css"],
+      "js": ["field_rules.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

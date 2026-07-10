@@ -1,0 +1,105 @@
+/* Injected styles for ApplyPilot on webpage forms */
+
+/* Floating Inline Trigger Button */
+.applypilot-inline-trigger {
+  width: 22px !important;
+  height: 22px !important;
+  position: absolute !important;
+  z-index: 2147483645 !important;
+  cursor: pointer !important;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #ffffff !important;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0.8 !important;
+}
+
+.applypilot-inline-trigger:hover {
+  opacity: 1 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 10px rgb(99 102 241 / 0.4), 0 0 0 3px rgb(99 102 241 / 0.15) !important;
+}
+
+.applypilot-inline-trigger svg {
+  width: 11px !important;
+  height: 11px !important;
+  pointer-events: none !important;
+}
+
+/* Floating Profile Selection Dropdown Tooltip */
+.applypilot-dropdown {
+  position: absolute !important;
+  z-index: 2147483647 !important;
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4) !important;
+  padding: 0.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+  min-width: 180px !important;
+  max-width: 260px !important;
+  font-family: 'Outfit', 'Inter', -apple-system, sans-serif !important;
+  font-size: 13px !important;
+  color: #f8fafc !important;
+  animation: apFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@keyframes apFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.applypilot-dropdown-header {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.35rem 0.6rem !important;
+  border-bottom: 1px solid #1e293b !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.applypilot-dropdown-item {
+  padding: 0.5rem 0.6rem !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-weight: 500 !important;
+  background: none !important;
+  border: none !important;
+  color: #e2e8f0 !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+.applypilot-dropdown-item:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.applypilot-dropdown-item.active-profile {
+  background: linear-gradient(135deg, rgb(99 102 241 / 0.2), rgb(139 92 246 / 0.2)) !important;
+  border: 0.5px solid rgb(99 102 241 / 0.4) !important;
+  color: #a78bfa !important;
+}
+
+/* Filled & Error Field Indicators */
+.applypilot-filled {
+  transition: all 0.3s ease !important;
+}
+
+.applypilot-error {
+  transition: all 0.3s ease !important;
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ApplyPilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 22H22L12 2Z" stroke="url(#logo-grad)" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M12 6L5 20H19L12 6Z" fill="url(#logo-grad)" opacity="0.15"/>
+          <defs>
+            <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="brand-name">ApplyPilot</span>
+      </div>
+      <a href="#" id="link-options" class="settings-link" title="Open Options dashboard">
+        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </a>
+    </header>
+
+    <!-- Profile Selector Panel -->
+    <div class="profile-card">
+      <label for="popup-profile-select">Active Profile</label>
+      <select id="popup-profile-select" class="profile-select">
+        <!-- Loaded dynamically -->
+      </select>
+    </div>
+
+    <!-- Active Status Card -->
+    <div class="status-card">
+      <div class="status-header">
+        <span class="status-label">Engine State</span>
+        <span id="status-badge" class="badge status-idle">Idle</span>
+      </div>
+      
+      <div class="status-details">
+        <div class="detail-row">
+          <span class="label">Current Step:</span>
+          <span id="current-step" class="val">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Confidence Score:</span>
+          <span id="confidence-score" class="val">-</span>
+        </div>
+        <div class="detail-row info-row">
+          <span id="status-msg">Click Start to begin filling the form on this page.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error/Notice Display -->
+    <div id="error-card" class="error-card hidden">
+      <svg viewBox="0 0 24 24" class="err-icon" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="error-info">
+        <span class="error-title">Attention Required</span>
+        <p id="error-text">Please resolve the error on page to continue.</p>
+      </div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="controls-panel">
+      <!-- Idle Controls -->
+      <button id="btn-start" class="btn btn-primary btn-full">
+        <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Start Automation
+      </button>
+
+      <!-- Running Controls -->
+      <div id="running-controls" class="btn-group hidden">
+        <button id="btn-pause" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" class="btn-icon" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          Pause
+        </button>
+        <button id="btn-stop" class="btn btn-danger">
+          <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M6 19h12V5H6v14z"/></svg>
+          Stop
+        </button>
+      </div>
+
+      <!-- Paused Controls -->
+      <div id="paused-controls" class="btn-group hidden">
+        <button id="btn-resume" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Resume
+        </button>
+        <button id="btn-stop-paused" class="btn btn-danger">
+          <svg viewBox="0 0 24 24" class="btn-icon" fill="currentColor"><path d="M6 19h12V5H6v14z"/></svg>
+          Stop
+        </button>
+      </div>
+
+      <!-- Awaiting Confirm Controls -->
+      <div id="confirm-controls" class="btn-group hidden">
+        <button id="btn-proceed" class="btn btn-primary btn-full">
+          <svg viewBox="0 0 24 24" class="btn-icon" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Verify & Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- Security Note -->
+    <footer class="footer">
+      🔒 Safe & Secure. Automation never submits forms automatically.
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

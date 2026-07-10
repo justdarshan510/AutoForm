@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ApplyPilot - Settings & Profiles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 22H22L12 2Z" stroke="url(#logo-grad)" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M12 6L5 20H19L12 6Z" fill="url(#logo-grad)" opacity="0.15"/>
+          <defs>
+            <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="brand-name">ApplyPilot</span>
+      </div>
+      
+      <nav class="nav-menu">
+        <button class="nav-btn active" data-tab="profiles">
+          <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profiles
+        </button>
+        <button class="nav-btn" data-tab="settings">
+          <svg viewBox="0 0 24 24" class="nav-icon" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer">
+        v1.0.0 • Production Ready
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Profiles Section -->
+      <section id="tab-profiles" class="tab-section active">
+        <div class="section-header">
+          <div>
+            <h1>Manage Profiles</h1>
+            <p class="section-subtitle">Create and edit profiles to use for job applications.</p>
+          </div>
+          <div class="profile-actions">
+            <select id="profile-select" class="profile-dropdown">
+              <!-- Dynamically populated -->
+            </select>
+            <button id="btn-new-profile" class="btn btn-secondary">New Profile</button>
+            <button id="btn-delete-profile" class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+
+        <!-- Quick AI Import -->
+        <div class="card ai-import-card">
+          <div class="card-header">
+            <h3 class="card-title">🚀 Fast AI Profile Setup</h3>
+            <span class="badge">Powered by Gemini</span>
+          </div>
+          <div class="card-body">
+            <p class="card-desc">Paste your resume text below and let Gemini AI automatically parse it to populate your entire profile structure in seconds.</p>
+            <textarea id="ai-resume-input" placeholder="Paste your raw resume text here..."></textarea>
+            <div class="ai-import-controls">
+              <button id="btn-ai-parse" class="btn btn-primary">Parse Resume & Autofill</button>
+              <div id="ai-parse-loader" class="loader-container hidden">
+                <span class="spinner"></span> Parsing resume, please wait...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form id="profile-form" class="profile-form">
+          <!-- Profile Metadata Name -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Profile Configuration</h3>
+            </div>
+            <div class="card-body grid-2">
+              <div class="form-group">
+                <label for="prof-name">Profile Name (e.g. "Software Engineer")</label>
+                <input type="text" id="prof-name" name="profileName" required placeholder="e.g. Software Engineer">
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Information -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Personal Details</h3>
+            </div>
+            <div class="card-body grid-2">
+              <div class="form-group">
+                <label for="pers-fname">First Name</label>
+                <input type="text" id="pers-fname" name="firstName">
+              </div>
+              <div class="form-group">
+                <label for="pers-lname">Last Name</label>
+                <input type="text" id="pers-lname" name="lastName">
+              </div>
+              <div class="form-group">
+                <label for="pers-fullname">Full Name (Legal Name)</label>
+                <input type="text" id="pers-fullname" name="fullName">
+              </div>
+              <div class="form-group">
+                <label for="pers-email">Email Address</label>
+                <input type="email" id="pers-email" name="email">
+              </div>
+              <div class="form-group">
+                <label for="pers-phone">Phone Number</label>
+                <input type="tel" id="pers-phone" name="phone" placeholder="e.g. +1 555 123 4567">
+              </div>
+              <div class="form-group">
+                <label for="pers-dob">Date of Birth</label>
+                <input type="date" id="pers-dob" name="dob">
+              </div>
+              <div class="form-group">
+                <label for="pers-gender">Gender</label>
+                <select id="pers-gender" name="gender">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="pers-nationality">Nationality</label>
+                <input type="text" id="pers-nationality" name="nationality" placeholder="e.g. American">
+              </div>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Address Details</h3>
+            </div>
+            <div class="card-body grid-2">
+              <div class="form-group grid-span-2">
+                <label for="addr-street">Street Address</label>
+                <input type="text" id="addr-street" name="address.street">
+              </div>
+              <div class="form-group grid-span-2">
+                <label for="addr-line2">Apartment, Suite, etc. (Line 2)</label>
+                <input type="text" id="addr-line2" name="address.line2">
+              </div>
+              <div class="form-group">
+                <label for="addr-city">City</label>
+                <input type="text" id="addr-city" name="address.city">
+              </div>
+              <div class="form-group">
+                <label for="addr-state">State / Province / Region</label>
+                <input type="text" id="addr-state" name="address.state">
+              </div>
+              <div class="form-group">
+                <label for="addr-zip">Zip / Postal Code</label>
+                <input type="text" id="addr-zip" name="address.zip">
+              </div>
+              <div class="form-group">
+                <label for="addr-country">Country</label>
+                <input type="text" id="addr-country" name="address.country">
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Links -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Professional Links</h3>
+            </div>
+            <div class="card-body grid-2">
+              <div class="form-group">
+                <label for="link-linkedin">LinkedIn URL</label>
+                <input type="url" id="link-linkedin" name="linkedin" placeholder="https://linkedin.com/in/username">
+              </div>
+              <div class="form-group">
+                <label for="link-github">GitHub URL</label>
+                <input type="url" id="link-github" name="github" placeholder="https://github.com/username">
+              </div>
+              <div class="form-group grid-span-2">
+                <label for="link-portfolio">Portfolio / Personal Website</label>
+                <input type="url" id="link-portfolio" name="portfolio" placeholder="https://myportfolio.com">
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills, Languages, Achievements -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Skills & Capabilities</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="prof-skills">Skills (comma-separated list)</label>
+                <textarea id="prof-skills" name="skills" placeholder="JavaScript, Python, React, Chrome Extensions, Machine Learning"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="prof-languages">Languages (comma-separated list)</label>
+                <input type="text" id="prof-languages" name="languages" placeholder="English (Native), Spanish (Conversational)">
+              </div>
+              <div class="form-group">
+                <label for="prof-achievements">Achievements (one per line)</label>
+                <textarea id="prof-achievements" name="achievements" placeholder="Won 1st place at Global Hackathon 2025&#10;Published research paper on AI agents"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Education</h3>
+              <button type="button" id="btn-add-edu" class="btn btn-secondary btn-sm">+ Add Education</button>
+            </div>
+            <div id="education-list" class="repeater-list">
+              <!-- Dynamically populated education items -->
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Work Experience</h3>
+              <button type="button" id="btn-add-exp" class="btn btn-secondary btn-sm">+ Add Experience</button>
+            </div>
+            <div id="experience-list" class="repeater-list">
+              <!-- Dynamically populated experience items -->
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Projects</h3>
+              <button type="button" id="btn-add-proj" class="btn btn-secondary btn-sm">+ Add Project</button>
+            </div>
+            <div id="projects-list" class="repeater-list">
+              <!-- Dynamically populated projects items -->
+            </div>
+          </div>
+
+          <!-- Document Upload Settings -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Files & Resumes (Base64 Injection)</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="doc-resume-text">Paste Resume Text (For Custom QA reference)</label>
+                <textarea id="doc-resume-text" name="resumeText" placeholder="Paste full resume plain text..."></textarea>
+              </div>
+              <div class="form-group">
+                <label for="doc-resume-file">Resume File (.pdf or .docx) for Form Uploads</label>
+                <input type="file" id="doc-resume-file-input">
+                <div class="file-info-bar">
+                  <span id="resume-file-status" class="file-status">No resume file uploaded yet</span>
+                  <button type="button" id="btn-clear-resume-file" class="btn btn-danger btn-sm hidden">Remove File</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="doc-cover-file">Cover Letter File (.pdf or .docx) for Form Uploads</label>
+                <input type="file" id="doc-cover-file-input">
+                <div class="file-info-bar">
+                  <span id="cover-file-status" class="file-status">No cover letter file uploaded yet</span>
+                  <button type="button" id="btn-clear-cover-file" class="btn btn-danger btn-sm hidden">Remove File</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Answers -->
+          <div class="card form-section-card">
+            <div class="card-header">
+              <h3 class="card-title">Custom QA Answers</h3>
+              <button type="button" id="btn-add-qa" class="btn btn-secondary btn-sm">+ Add Custom Q&A</button>
+            </div>
+            <div class="card-body">
+              <p class="card-desc">Provide predefined answers for common questions. If a form asks a matching question, we will prefill it directly before invoking the AI.</p>
+              <div id="qa-list" class="repeater-list">
+                <!-- Dynamically populated custom QA items -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Save Button Bar -->
+          <div class="form-submit-bar">
+            <button type="submit" class="btn btn-primary btn-lg">Save Profile</button>
+            <div id="save-status" class="save-status hidden">Saved successfully!</div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Settings Section -->
+      <section id="tab-settings" class="tab-section">
+        <div class="section-header">
+          <div>
+            <h1>Global Settings</h1>
+            <p class="section-subtitle">Manage API integration keys and automation parameters.</p>
+          </div>
+        </div>
+
+        <div class="card form-section-card">
+          <div class="card-header">
+            <h3 class="card-title">Gemini API Key</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-desc">Provide your Gemini API Key to enable resume parsing and intelligent generation of answers to custom application questions.</p>
+            <div class="form-group">
+              <label for="settings-api-key">Gemini API Key</label>
+              <div class="api-key-input-container">
+                <input type="password" id="settings-api-key" placeholder="AIzaSy...">
+                <button type="button" id="btn-toggle-key-visibility" class="btn btn-secondary">Show</button>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button id="btn-test-api" class="btn btn-secondary">Test Connection</button>
+              <span id="api-test-status" class="api-test-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card form-section-card">
+          <div class="card-header">
+            <h3 class="card-title">Backup & Restore</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-desc">Export all your profiles, settings, and documents as a single JSON file, or restore them onto another browser.</p>
+            <div class="settings-actions">
+              <button id="btn-export-data" class="btn btn-secondary">Export Backup</button>
+              <button id="btn-import-data" class="btn btn-secondary">Import Backup</button>
+              <input type="file" id="import-file-input" class="hidden" accept=".json">
+            </div>
+            <div id="backup-status" class="backup-status"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="field_rules.js"></script>
+  <script src="ai_helper.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

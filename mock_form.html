@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mock Job Application Form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #3b82f6;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      padding: 3rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .form-container {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+      width: 100%;
+      max-width: 640px;
+      padding: 2.5rem;
+    }
+    
+    .header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    
+    /* Progress steps indicator */
+    .steps-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    
+    .steps-indicator::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--border);
+      z-index: 1;
+      transform: translateY(-50%);
+    }
+    
+    .step-dot {
+      width: 32px;
+      height: 32px;
+      background-color: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--muted);
+      z-index: 2;
+      transition: all 0.3s ease;
+    }
+    
+    .step-dot.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 4px rgb(59 130 246 / 0.15);
+    }
+    
+    .step-dot.completed {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    
+    /* Steps Panels */
+    .step-panel {
+      display: none;
+    }
+    
+    .step-panel.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .span-2 {
+      grid-column: span 2;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      position: relative;
+    }
+    
+    label {
+      font-size: 0.85rem;
+      font-weight: 550;
+      color: var(--text);
+    }
+    
+    .required-star {
+      color: var(--danger);
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+      width: 100%;
+    }
+    
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
+    
+    textarea {
+      resize: vertical;
+      height: 120px;
+    }
+    
+    /* Validation errors style */
+    .form-group.invalid-field input,
+    .form-group.invalid-field select,
+    .form-group.invalid-field textarea {
+      border-color: var(--danger);
+      background-color: rgb(239 68 68 / 0.02);
+    }
+    
+    .error-msg {
+      color: var(--danger);
+      font-size: 0.75rem;
+      margin-top: 0.15rem;
+      display: none;
+    }
+    
+    .form-group.invalid-field .error-msg {
+      display: block;
+    }
+    
+    /* Buttons */
+    .button-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+    }
+    
+    .btn {
+      padding: 0.65rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: #334155;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+    
+    /* Success screen */
+    .success-screen {
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .success-icon {
+      font-size: 3rem;
+      color: var(--success);
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <div class="header">
+      <h1>ApplyPilot Test Form</h1>
+      <span class="subtitle">Simulated Application Portal</span>
+    </div>
+
+    <!-- Step Progress bar -->
+    <div class="steps-indicator">
+      <div id="dot-1" class="step-dot active">1</div>
+      <div id="dot-2" class="step-dot">2</div>
+      <div id="dot-3" class="step-dot">3</div>
+    </div>
+
+    <!-- STEP 1: Personal Info -->
+    <div id="panel-1" class="step-panel active">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="input-fname">First Name <span class="required-star">*</span></label>
+          <input type="text" id="input-fname" placeholder="John" required>
+          <div class="error-msg">First name is required.</div>
+        </div>
+        <div class="form-group">
+          <label for="input-lname">Last Name <span class="required-star">*</span></label>
+          <input type="text" id="input-lname" placeholder="Doe" required>
+          <div class="error-msg">Last name is required.</div>
+        </div>
+        <div class="form-group span-2">
+          <label for="input-fullname">Full Legal Name <span class="required-star">*</span></label>
+          <input type="text" id="input-fullname" placeholder="John Doe" required>
+          <div class="error-msg">Full name is required.</div>
+        </div>
+        <div class="form-group">
+          <label for="input-email">Email Address <span class="required-star">*</span></label>
+          <input type="email" id="input-email" placeholder="john@example.com" required>
+          <div class="error-msg">Please enter a valid email address.</div>
+        </div>
+        <div class="form-group">
+          <label for="input-phone">Phone Number <span class="required-star">*</span></label>
+          <input type="tel" id="input-phone" placeholder="+1 555 123 4567" required>
+          <div class="error-msg">Phone number is required.</div>
+        </div>
+        <div class="form-group">
+          <label for="input-dob">Date of Birth</label>
+          <input type="date" id="input-dob">
+        </div>
+        <div class="form-group">
+          <label for="input-gender">Gender</label>
+          <select id="input-gender">
+            <option value="">Select Option</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label for="input-street">Street Address</label>
+          <input type="text" id="input-street" placeholder="123 Main St">
+        </div>
+        <div class="form-group">
+          <label for="input-city">City</label>
+          <input type="text" id="input-city" placeholder="San Francisco">
+        </div>
+        <div class="form-group">
+          <label for="input-country">Country</label>
+          <input type="text" id="input-country" placeholder="United States">
+        </div>
+      </div>
+      
+      <div class="button-bar">
+        <button type="button" class="btn btn-primary" id="btn-next-1">Continue</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Files & Custom Questions -->
+    <div id="panel-2" class="step-panel">
+      <div class="grid-2">
+        <div class="form-group span-2">
+          <label for="file-resume">Resume Upload (.pdf, .docx) <span class="required-star">*</span></label>
+          <input type="file" id="file-resume" required accept=".pdf,.docx">
+          <div class="error-msg">Please upload your resume.</div>
+        </div>
+        
+        <div class="form-group span-2">
+          <label for="file-cover">Cover Letter Upload (.pdf)</label>
+          <input type="file" id="file-cover" accept=".pdf">
+        </div>
+
+        <div class="form-group span-2">
+          <label for="qa-why">Why do you want to join our company? <span class="required-star">*</span></label>
+          <textarea id="qa-why" placeholder="Explain your motivations..." required></textarea>
+          <div class="error-msg">This answer is required.</div>
+        </div>
+
+        <div class="form-group span-2">
+          <label for="qa-problem">Tell us about a time you solved a hard technical problem. <span class="required-star">*</span></label>
+          <textarea id="qa-problem" placeholder="Describe the challenge and solution..." required></textarea>
+          <div class="error-msg">This answer is required.</div>
+        </div>
+      </div>
+
+      <div class="button-bar">
+        <button type="button" class="btn btn-secondary" id="btn-back-2">Back</button>
+        <button type="button" class="btn btn-primary" id="btn-next-2">Proceed to Review</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Review & Submit -->
+    <div id="panel-3" class="step-panel">
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem;">Review Details</h3>
+        <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem;">
+          Please review the details filled in the form before hitting final submission. Automation has completed the fields.
+        </p>
+        <div style="background-color: #f8fafc; border: 1px solid var(--border); padding: 1rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.6;">
+          <strong>Name:</strong> <span id="review-name">-</span><br>
+          <strong>Email:</strong> <span id="review-email">-</span><br>
+          <strong>Phone:</strong> <span id="review-phone">-</span><br>
+          <strong>Resume:</strong> <span id="review-resume">-</span>
+        </div>
+      </div>
+
+      <div class="button-bar">
+        <button type="button" class="btn btn-secondary" id="btn-back-3">Back</button>
+        <button type="button" class="btn btn-primary" id="btn-submit">Submit Application</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div id="panel-success" class="step-panel">
+      <div class="success-screen">
+        <div class="success-icon">✓</div>
+        <h2>Application Submitted!</h2>
+        <p class="subtitle" style="margin-top: 0.5rem;">
+          Thank you for applying. The simulated backend has registered your submission.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Navigation controllers
+    const panels = [
+      document.getElementById('panel-1'),
+      document.getElementById('panel-2'),
+      document.getElementById('panel-3'),
+      document.getElementById('panel-success')
+    ];
+    
+    const dots = [
+      document.getElementById('dot-1'),
+      document.getElementById('dot-2'),
+      document.getElementById('dot-3')
+    ];
+
+    function showPanel(stepIndex) {
+      panels.forEach((p, idx) => {
+        if (p) p.classList.toggle('active', idx === stepIndex);
+      });
+      
+      dots.forEach((d, idx) => {
+        if (d) {
+          d.classList.toggle('active', idx === stepIndex);
+          d.classList.toggle('completed', idx < stepIndex);
+        }
+      });
+    }
+
+    // Step 1 Validation & Proceed
+    document.getElementById('btn-next-1').addEventListener('click', () => {
+      let isValid = true;
+
+      // Validate First Name
+      const fnameEl = document.getElementById('input-fname');
+      if (!fnameEl.value.trim()) {
+        fnameEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        fnameEl.parentElement.classList.remove('invalid-field');
+      }
+
+      // Validate Last Name
+      const lnameEl = document.getElementById('input-lname');
+      if (!lnameEl.value.trim()) {
+        lnameEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        lnameEl.parentElement.classList.remove('invalid-field');
+      }
+
+      // Validate Full Name
+      const fullnameEl = document.getElementById('input-fullname');
+      if (!fullnameEl.value.trim()) {
+        fullnameEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        fullnameEl.parentElement.classList.remove('invalid-field');
+      }
+
+      // Validate Email
+      const emailEl = document.getElementById('input-email');
+      if (!emailEl.value.includes('@')) {
+        emailEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        emailEl.parentElement.classList.remove('invalid-field');
+      }
+
+      // Validate Phone
+      const phoneEl = document.getElementById('input-phone');
+      if (!phoneEl.value.trim()) {
+        phoneEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        phoneEl.parentElement.classList.remove('invalid-field');
+      }
+
+      if (isValid) {
+        showPanel(1);
+      }
+    });
+
+    // Step 2 Validation & Proceed
+    document.getElementById('btn-next-2').addEventListener('click', () => {
+      let isValid = true;
+
+      // Validate Resume
+      const resumeEl = document.getElementById('file-resume');
+      if (!resumeEl.files || resumeEl.files.length === 0) {
+        resumeEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        resumeEl.parentElement.classList.remove('invalid-field');
+      }
+
+      // Validate custom Q&As
+      const whyEl = document.getElementById('qa-why');
+      if (!whyEl.value.trim()) {
+        whyEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        whyEl.parentElement.classList.remove('invalid-field');
+      }
+
+      const problemEl = document.getElementById('qa-problem');
+      if (!problemEl.value.trim()) {
+        problemEl.parentElement.classList.add('invalid-field');
+        isValid = false;
+      } else {
+        problemEl.parentElement.classList.remove('invalid-field');
+      }
+
+      if (isValid) {
+        // Populate review step fields
+        document.getElementById('review-name').textContent = document.getElementById('input-fullname').value;
+        document.getElementById('review-email').textContent = document.getElementById('input-email').value;
+        document.getElementById('review-phone').textContent = document.getElementById('input-phone').value;
+        document.getElementById('review-resume').textContent = resumeEl.files[0]?.name || 'Not Uploaded';
+        
+        showPanel(2);
+      }
+    });
+
+    // Back buttons
+    document.getElementById('btn-back-2').addEventListener('click', () => showPanel(0));
+    document.getElementById('btn-back-3').addEventListener('click', () => showPanel(1));
+
+    // Submit
+    document.getElementById('btn-submit').addEventListener('click', () => {
+      showPanel(3);
+    });
+  </script>
+</body>
+</html>

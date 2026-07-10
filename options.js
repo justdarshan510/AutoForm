@@ -75,6 +75,7 @@ const btnClearCoverFile = document.getElementById('btn-clear-cover-file');
 
 // Settings elements
 const apiKeyInput = document.getElementById('settings-api-key');
+const apiModelSelect = document.getElementById('settings-api-model');
 const btnToggleKeyVisibility = document.getElementById('btn-toggle-key-visibility');
 const btnTestApi = document.getElementById('btn-test-api');
 const apiTestStatus = document.getElementById('api-test-status');
@@ -125,6 +126,7 @@ async function loadFromStorage() {
       
       // Populate fields
       apiKeyInput.value = apiSettings.key;
+      apiModelSelect.value = apiSettings.model || 'gemini-3.5-flash';
       resolve();
     });
   });
@@ -502,7 +504,7 @@ function setupAiImportHandlers() {
     aiParseLoader.classList.remove('hidden');
     
     try {
-      const parsedData = await AiHelper.parseResume(apiSettings.key, text);
+      const parsedData = await AiHelper.parseResume(apiSettings.key, text, apiSettings.model || 'gemini-3.5-flash');
       if (parsedData) {
         mergeParsedDataIntoUI(parsedData, text);
         alert("Autofill Complete! Review the imported fields below and click 'Save Profile'.");
@@ -687,6 +689,12 @@ function setupSettingsHandlers() {
     chrome.storage.local.set({ apiSettings });
   });
 
+  // Save model automatically as the user changes selection
+  apiModelSelect.addEventListener('change', () => {
+    apiSettings.model = apiModelSelect.value;
+    chrome.storage.local.set({ apiSettings });
+  });
+
   // Toggle key visibility
   btnToggleKeyVisibility.addEventListener('click', () => {
     if (apiKeyInput.type === 'password') {
@@ -701,6 +709,7 @@ function setupSettingsHandlers() {
   // Test connection
   btnTestApi.addEventListener('click', async () => {
     const testKey = apiKeyInput.value.trim();
+    const testModel = apiModelSelect.value;
     if (!testKey) {
       apiTestStatus.textContent = "Please input a key first";
       apiTestStatus.className = "api-test-status error";
@@ -708,11 +717,11 @@ function setupSettingsHandlers() {
     }
     
     btnTestApi.disabled = true;
-    apiTestStatus.textContent = "Connecting to Gemini API...";
+    apiTestStatus.textContent = `Connecting to Gemini API using ${testModel}...`;
     apiTestStatus.className = "api-test-status";
     
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${testKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${testModel}:generateContent?key=${testKey}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -721,16 +730,20 @@ function setupSettingsHandlers() {
         })
       });
       
-      if (!response.ok) throw new Error("Verification failed");
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || "Verification failed");
+      }
       const data = await response.json();
       const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       
       if (txt.includes('SUCCESS')) {
-        apiTestStatus.textContent = "Connection Successful! Gemini API is active.";
+        apiTestStatus.textContent = `Connection Successful! ${testModel} is active.`;
         apiTestStatus.className = "api-test-status success";
         
-        // Save the key
+        // Save the key and model
         apiSettings.key = testKey;
+        apiSettings.model = testModel;
         chrome.storage.local.set({ apiSettings });
       } else {
         throw new Error("Invalid response contents");

@@ -1,8 +1,7 @@
 // Gemini API integration helper
 // Communicates with https://generativelanguage.googleapis.com
 
-async function callGemini(apiKey, prompt, systemInstruction = '', jsonMode = false) {
-  const model = "gemini-3.5-flash";
+async function callGemini(apiKey, prompt, systemInstruction = '', jsonMode = false, model = 'gemini-3.5-flash') {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   
   const requestBody = {
@@ -53,7 +52,7 @@ async function callGemini(apiKey, prompt, systemInstruction = '', jsonMode = fal
 /**
  * Parses raw resume text into structured profile JSON
  */
-async function parseResume(apiKey, resumeText) {
+async function parseResume(apiKey, resumeText, modelName = 'gemini-3.5-flash') {
   const systemInstruction = `You are an expert resume parsing assistant. Your task is to extract details from a raw resume text and output a valid JSON object matching the requested schema. Ensure all fields are filled as accurately as possible. Output ONLY the JSON.`;
   
   const schemaPrompt = `
@@ -118,13 +117,13 @@ async function parseResume(apiKey, resumeText) {
   """
   `;
 
-  return await callGemini(apiKey, schemaPrompt, systemInstruction, true);
+  return await callGemini(apiKey, schemaPrompt, systemInstruction, true, modelName);
 }
 
 /**
  * Generates custom answers for specific application questions
  */
-async function generateAnswer(apiKey, profile, questionText, contextText = '') {
+async function generateAnswer(apiKey, profile, questionText, contextText = '', modelName = 'gemini-3.5-flash') {
   const systemInstruction = `You are a professional job application assistant. Your task is to write a concise, compelling response to a custom job application question using the candidate's profile information. Do not invent achievements. Keep answers professional, relevant, and strictly under 150 words unless requested otherwise. Do not include placeholders.`;
   
   const prompt = `
@@ -140,7 +139,7 @@ async function generateAnswer(apiKey, profile, questionText, contextText = '') {
   Write a polished answer tailored to the candidate's background. Do not write introductory remarks like "Here is your response". Return only the generated response text.
   `;
   
-  return await callGemini(apiKey, prompt, systemInstruction, false);
+  return await callGemini(apiKey, prompt, systemInstruction, false, modelName);
 }
 
 /**
@@ -168,9 +167,31 @@ async function classifyField(apiKey, labelText, elementContext = '') {
   return result.trim().toLowerCase();
 }
 
+async function fillRemainingFields(apiKey, profile, fields, modelName = 'gemini-3.5-flash') {
+  const systemInstruction = `You are a helpful form filling assistant. You are given a candidate's profile details (including their resume text) and a list of empty form fields on a webpage. Your task is to extract the correct values for these fields from the candidate's profile/resume, or generate appropriate answers if requested. Return the result strictly as a JSON object mapping each field's unique ID to the corresponding string value. Do not include any explanations.`;
+
+  const prompt = `
+  Candidate Profile:
+  ${JSON.stringify(profile, null, 2)}
+
+  List of empty fields to fill:
+  ${JSON.stringify(fields, null, 2)}
+
+  Return a JSON object where the keys are the field "id"s and the values are the filled text/select values. If a field cannot be answered from the profile, map it to an empty string.
+  `;
+
+  try {
+    return await callGemini(apiKey, prompt, systemInstruction, true, modelName);
+  } catch (err) {
+    console.error("fillRemainingFields error:", err);
+    return {};
+  }
+}
+
 // Expose to globalThis
 globalThis.AiHelper = {
   parseResume,
   generateAnswer,
-  classifyField
+  classifyField,
+  fillRemainingFields
 };

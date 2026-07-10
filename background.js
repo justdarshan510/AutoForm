@@ -228,6 +228,11 @@ async function handlePageScan(tabId, scanData) {
   let hasAIFills = false;
   state.customQaFieldsFound = false;
 
+  console.log("--- Process Scan Results ---");
+  console.log("Tab State API Key Present:", !!state.apiKey);
+  console.log("Profile Name:", profile ? profile.profileName : "None");
+  console.log("Scanned Fields Count:", scanData.fields.length);
+
   // Process each field
   for (const field of scanData.fields) {
     let matchedValue = null;
@@ -237,10 +242,13 @@ async function handlePageScan(tabId, scanData) {
 
     if (isRequired) totalMatchableFields++;
 
+    console.log(`Processing field: [${field.tagName}] ID: "${field.id}", Label: "${field.label}", Name: "${field.name}"`);
+
     // 1. Check local field mapping rule first
     const profileKey = FieldRules.match(field.label) || FieldRules.match(field.name) || FieldRules.match(field.placeholder);
     
-    if (profileKey) {
+    if (profileKey && profile) {
+      console.log(`-> Matched rule: "${profileKey}"`);
       if (profileKey === 'firstName') matchedValue = profile.firstName;
       else if (profileKey === 'lastName') matchedValue = profile.lastName;
       else if (profileKey === 'fullName') matchedValue = profile.fullName;
@@ -273,10 +281,11 @@ async function handlePageScan(tabId, scanData) {
       }
       else if (profileKey === 'certificates') {
         fieldType = 'file';
-        fileData = profile.certificates; // Falls back to resume if cover/certificates not set
+        fileData = profile.certificates;
       }
 
       if (matchedValue || fileData) {
+        console.log(`-> Mapped value successfully: "${fieldType === 'file' ? (fileData ? fileData.name : 'empty file') : matchedValue}"`);
         matchedFields++;
       }
     }
@@ -285,14 +294,16 @@ async function handlePageScan(tabId, scanData) {
     if (!matchedValue && fieldType !== 'file' && (field.tagName === 'TEXTAREA' || field.type === 'text')) {
       const isCustomQuestion = detectCustomQuestion(field.label, field.placeholder, field.name);
       if (isCustomQuestion) {
+        console.log("-> Detected as Custom Essay Question!");
         state.customQaFieldsFound = true;
         // Check if we have a matching custom Q&A already saved
-        const savedQA = (profile.customQA || []).find(q => 
+        const savedQA = profile ? (profile.customQA || []).find(q => 
           field.label.toLowerCase().includes(q.question.toLowerCase()) || 
           q.question.toLowerCase().includes(field.label.toLowerCase())
-        );
+        ) : null;
 
         if (savedQA) {
+          console.log(`-> Mapped saved Q&A answer: "${savedQA.answer}"`);
           matchedValue = savedQA.answer;
           matchedFields++;
         } else {
@@ -301,8 +312,10 @@ async function handlePageScan(tabId, scanData) {
             state.message = 'Generating custom answer using Gemini AI...';
             broadcastState(tabId);
             try {
-              const contextText = `Applying for a job page. Resume Text reference: ${profile.resumeText || ''}`;
-              matchedValue = await AiHelper.generateAnswer(state.apiKey, profile, field.label || field.placeholder || field.name, contextText);
+              console.log("-> Attempting Live Gemini AI Generation...");
+              const contextText = `Applying for a job page. Resume Text reference: ${profile ? profile.resumeText : ''}`;
+              matchedValue = await AiHelper.generateAnswer(state.apiKey, profile || {}, field.label || field.placeholder || field.name, contextText);
+              console.log(`-> Gemini AI Response: "${matchedValue}"`);
               hasAIFills = true;
               matchedFields++;
             } catch (apiErr) {
@@ -312,7 +325,9 @@ async function handlePageScan(tabId, scanData) {
           
           // Local fallback generator (ensures custom questions are never left blank)
           if (!matchedValue) {
+            console.log("-> Using Local Simulated AI Fallback Generator...");
             matchedValue = generateSimulatedAnswer(field.label || field.placeholder || field.name, profile);
+            console.log(`-> Fallback Answer: "${matchedValue}"`);
             matchedFields++;
           }
         }

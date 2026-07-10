@@ -2,6 +2,8 @@
 
 ApplyPilot is an intelligent form filler and job application assistant Chrome/Edge extension powered by Google Gemini AI. It automates filling out long job applications, handles file uploads (like resumes/cover letters), and uses AI to generate concise, professional answers to custom application essay questions.
 
+![How it works](how_it_works.png)
+
 ---
 
 ## ✨ Features
